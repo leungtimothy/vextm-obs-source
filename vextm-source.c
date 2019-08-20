@@ -95,6 +95,16 @@ static obs_properties_t* vextm_source_get_properties(void* data) {
             obs_module_text("VexTmFieldSet"),
             0, 20, 1);
 
+    // Overlay
+    obs_property_t* overlay;
+    overlay = obs_properties_add_list(props, "overlay",
+            obs_module_text("VexTmOverlay"),
+            OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
+    obs_property_list_add_int(overlay,
+            obs_module_text("VexTmOverlayOff"), 0);
+    obs_property_list_add_int(overlay,
+            obs_module_text("VexTmOverlayOn"), 1);        
+
     return props;
 }
 
@@ -106,6 +116,7 @@ static void vextm_source_get_defaults(obs_data_t* settings) {
     obs_data_set_default_string(settings, "password", "");
     obs_data_set_default_int(settings, "screen", 0);
     obs_data_set_default_int(settings, "fieldset", 0);
+    obs_data_set_default_int(settings, "overlay", 0);
 }
 
 // Function update is called when any source settings are updated. For this
@@ -118,11 +129,12 @@ static void vextm_source_update(void* data, obs_data_t* settings) {
     const char* server = (char*) obs_data_get_string(settings, "server");
     const char* password = (char*) obs_data_get_string(settings, "password");
     long fieldset = obs_data_get_int(settings, "fieldset");
+    long overlay = obs_data_get_int(settings, "overlay");
 
     char cmd[256];
-    snprintf(cmd, 256, "%s --shmem %s --checkversion 0 --preview 0 --kiosk 1",
+    snprintf(cmd, 256, "%s --shmem %s --checkversion 0 --preview 0 --kiosk 1 --overlay %ld",
             obs_data_get_string(settings, "display"),
-            context->shmem);
+            context->shmem, overlay);
 
     if(strlen(server) > 0) {
         snprintf(cmd, 256, "%s --server %s", cmd, server);
